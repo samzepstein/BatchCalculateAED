@@ -1,0 +1,36 @@
+global class BatchCalculateAED implements Database.Batchable<SObject>, Database.Stateful{
+    
+    public List<String> errorLog = new List<String>();
+    
+    //we are querying for all child records that we will feed into the execute method which will trigger all DLRS where child object is Billing_Task__c
+    public Database.QueryLocator start(Database.BatchableContext BC){
+        
+        String query = 'SELECT Id, Account_Extended_Detail__c, Status__c FROM Billing_Task__c  ' + 
+            'WHERE Status__c != \'Complete\' ' + 
+            'AND Account_Extended_Detail__c != NULL';
+        
+        Database.QueryLocator qL = Database.getQueryLocator(query);
+        
+        return qL;
+    }
+    
+    public void execute(Database.BatchableContext BC, List<Billing_Task__c> billingTaskList){
+        
+        
+        system.debug('billingTaskList.size()' + billingTaskList.size());
+        
+        List<SObject> parents = (List<SObject>)dlrs.RollupService.rollup(billingTaskList);
+        update parents;
+        
+        
+        
+    }
+    
+    
+    public void finish(Database.BatchableContext BC){
+        
+        
+        
+    }
+    
+}
