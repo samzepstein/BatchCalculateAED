@@ -1,0 +1,53 @@
+@isTest
+public class BatchCalculateAED_Test {
+
+    
+    @testSetup
+    public static void setupTest(){
+        
+        Account_Extended_Detail__c aed = new Account_Extended_Detail__c();
+        
+        insert aed;
+        
+        Account acct = new Account();
+        
+        acct.Name = 'test';
+        acct.Account_Extended_Detail__c = aed.id;
+        
+        insert acct;
+        
+
+		Billing_Task__c bt = new Billing_Task__c();
+
+		bt.Name = 'Tes';
+		bt.Account_Extended_Detail__c = aed.id;
+        bt.Account__c = acct.id;
+        bt.Type__c = 'External Reporting';
+        bt.Status__c = 'New';
+        
+        insert bt;
+          
+        
+
+        
+    }
+    
+    
+    static testMethod void test(){
+        test.startTest();
+        database.executeBatch(new BatchCalculateAED());
+        test.stopTest();
+        
+    }
+    
+    
+    
+    static testMethod void testSchedule(){
+        test.startTest();
+        BatchCalculateAED_Schedule aTest = new BatchCalculateAED_Schedule();
+        String schedule = '0 0 23 * * ?'; 
+        system.schedule('Test Schedule B', schedule, aTest);
+        test.stopTest();
+    }
+    
+}
